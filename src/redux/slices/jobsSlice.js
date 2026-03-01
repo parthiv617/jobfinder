@@ -11,20 +11,44 @@ export const fetchJobById = createAsyncThunk('jobs/fetchJobById', async (id) => 
   return response.data;
 });
 
-export const addJob = createAsyncThunk('jobs/addJob', async (jobData) => {
-  const response = await createJob(jobData);
-  return response.data;
-});
+export const addJob = createAsyncThunk(
+  'jobs/addJob', 
+  async (jobData, { rejectWithValue }) => {
+    try {
+      const response = await createJob(jobData);
+      return response.data;
+    } catch (error) {
+      console.error('Add job error:', error);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
-export const editJob = createAsyncThunk('jobs/editJob', async ({ id, jobData }) => {
-  const response = await updateJob(id, jobData);
-  return response.data;
-});
+export const editJob = createAsyncThunk(
+  'jobs/editJob', 
+  async ({ id, jobData }, { rejectWithValue }) => {
+    try {
+      const response = await updateJob(id, jobData);
+      return response.data;
+    } catch (error) {
+      console.error('Edit job error:', error);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
-export const removeJob = createAsyncThunk('jobs/removeJob', async (id) => {
-  await deleteJob(id);
-  return id;
-});
+export const removeJob = createAsyncThunk(
+  'jobs/removeJob', 
+  async (id, { rejectWithValue }) => {
+    try {
+      await deleteJob(id);
+      return id;
+    } catch (error) {
+      console.error('Delete job error:', error);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 const jobsSlice = createSlice({
   name: 'jobs',
@@ -81,7 +105,7 @@ const jobsSlice = createSlice({
       })
       .addCase(addJob.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || 'Failed to create job';
       })
       // Edit job
       .addCase(editJob.pending, (state) => {
@@ -100,7 +124,7 @@ const jobsSlice = createSlice({
       })
       .addCase(editJob.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || 'Failed to update job';
       })
       // Delete job
       .addCase(removeJob.pending, (state) => {
@@ -116,7 +140,7 @@ const jobsSlice = createSlice({
       })
       .addCase(removeJob.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || 'Failed to delete job';
       });
   },
 });

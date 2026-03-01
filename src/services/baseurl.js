@@ -1,1 +1,3 @@
-export const BASE_URL = 'https://jobserver-6.onrender.com';
+export const BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://jobserver-5.onrender.com'
+  : 'http://localhost:3001';

@@ -18,6 +18,7 @@ const JobList = () => {
         await dispatch(removeJob(id)).unwrap();
       } catch (err) {
         console.error('Failed to delete job:', err);
+        alert('Failed to delete job. Please try again.');
       }
     }
   };
